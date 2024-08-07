@@ -54,6 +54,7 @@ public class UserController {
 		// controller 에서 일반적이 코드 작업 
 		// 1. 인증검사 (여기서는 인증검사 불 필요) 
 		// 2. 유효성 검사 
+		
 		if(dto.getUsername() == null || dto.getUsername().isEmpty()) {
 			throw new DataDeliveryException("username을 입력 하세요", HttpStatus.BAD_REQUEST);
 		}
@@ -92,6 +93,7 @@ public class UserController {
 	public String signProc(SignInDTO dto) {
 		// 1. 인증 검사 x 
 		// 2. 유효성 검사 
+		
 		if(dto.getUsername() == null || dto.getUsername().isEmpty()) {
 			throw new DataDeliveryException("username을 입력하시오", HttpStatus.BAD_REQUEST);
 		}
