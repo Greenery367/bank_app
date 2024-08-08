@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.tenco.bank.dto.DepositDTO;
 import com.tenco.bank.dto.SaveDTO;
+import com.tenco.bank.dto.TransferDTO;
 import com.tenco.bank.dto.WithdrawalDTO;
 import com.tenco.bank.handler.exception.DataDeliveryException;
 import com.tenco.bank.handler.exception.UnAuthorizedException;
@@ -197,7 +198,10 @@ public class AccountController {
 		// 1. 계좌가 존재하는지
 		// 2. 돈이 존재하는지
 		
-		if(dto.getAmount()==0) {
+		if (dto.getAmount() == null) {
+            throw new DataDeliveryException(Define.ENTER_YOUR_BALANCE, HttpStatus.BAD_REQUEST);
+        }
+		if(dto.getAmount()<=0) {
 			throw new DataDeliveryException(Define.ENTER_YOUR_BALANCE, HttpStatus.BAD_REQUEST);
 		}
 		if(dto.getDAccountNumber()==null) {
@@ -206,7 +210,73 @@ public class AccountController {
 		
 		accountService.updateAccountDeposit(dto, principal.getId());
 		
-		return "account/deposit";
+		return "redirect:/account/list";
 	}
+	
+	
+	/**
+	 * 이체 페이지 요청
+	 */
+	@GetMapping("/transfer")
+	public String transferPage() {
+		// 1. 인증 검사
+		User principal=(User)session.getAttribute("principal");
+		if(principal==null) {
+			throw new UnAuthorizedException(Define.NOT_AN_AUTHENTICATED_USER, HttpStatus.UNAUTHORIZED);
+		}
+				
+		return "account/transfer";
+	}
+	
+	/**
+	 * 
+	 */
+	
+	/**
+	 * 이체 요청 처리
+	 */
+	@PostMapping("/transfer")
+	public String transferProc(TransferDTO dto) {
+		// 1. 인증 검사
+		User principal=(User)session.getAttribute("principal");
+		if(principal==null) {
+			throw new UnAuthorizedException(Define.NOT_AN_AUTHENTICATED_USER, HttpStatus.UNAUTHORIZED);
+		}
+		
+		// 입금시 검사해야 할 것
+		// 1. 계좌가 존재하는지
+		// 2. 돈이 존재하는지
+		System.out.println(dto);
+		
+		// 입금-출금 계좌 중복 여부 확인 확인
+		if(dto.getDAccountNumber().equals(dto.getWAccountNumber())) {
+			throw new DataDeliveryException(Define.INVALID_INPUT, HttpStatus.BAD_REQUEST);
+		}
+		// 입금 금액 널 확인
+		if (dto.getAmount() == null) {
+            throw new DataDeliveryException(Define.ENTER_YOUR_BALANCE, HttpStatus.BAD_REQUEST);
+        }
+		// 입금 금액 - 확인
+		if(dto.getAmount()<=0) {
+			throw new DataDeliveryException(Define.ENTER_YOUR_BALANCE, HttpStatus.BAD_REQUEST);
+		}
+		// 출금 계좌 널 확인
+		if(dto.getDAccountNumber()==null) {
+			throw new DataDeliveryException(Define.ENTER_YOUR_ACCOUNT_NUMBER, HttpStatus.BAD_REQUEST);
+		}
+		// 입금 계좌 널 확인
+		if(dto.getWAccountNumber()==null) {
+			throw new DataDeliveryException(Define.ENTER_YOUR_ACCOUNT_NUMBER, HttpStatus.BAD_REQUEST);
+		}
+		// 출금 계좌 비밀번호 널 확인
+		if(dto.getPassword()==null) {
+			throw new DataDeliveryException(Define.ENTER_YOUR_PASSWORD, HttpStatus.BAD_REQUEST);
+		}
+		
+		accountService.updateAccountTransfer(dto, principal.getId());
+		
+		return "redirect:/account/list";
+	}
+	
 	
 }
