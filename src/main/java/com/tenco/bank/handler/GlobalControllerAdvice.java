@@ -50,7 +50,7 @@ public class GlobalControllerAdvice {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" <script>");
 		sb.append(" alert('"+ e.getMessage()  +"');");
-		sb.append(" window.history.back();");
+		sb.append(" location.href='/user/sign-in'");
 		sb.append(" </script>");
 		return sb.toString(); 
 	}
